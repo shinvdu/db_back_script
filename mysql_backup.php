@@ -73,7 +73,7 @@ foreach ($databases as $db_name) {
               file_put_contents($log_file,  date('Y-m-d H:i:s') . ':  file, ' . $filepath . 'was generated , and gziped' ."\n", FILE_APPEND);
               continue;
             }else{ // 否则备份
-              $info = shell_exec("mysqldump -h $host -u $user -p$password $db_name > $filepath");
+              $info = shell_exec("mysqldump -h $host -u $user -p'$password' $db_name > $filepath");
               file_put_contents($log_file,  date('Y-m-d H:i:s') . ':  file, ' . $filepath . 'was generated ' ."\n", FILE_APPEND);
             }
             // 备份成功，则把备份压缩存储
