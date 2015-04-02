@@ -23,7 +23,6 @@ function createDir($path){
     mkdir($path);
   }
 }
-
 foreach ($databases as $db_name) {
       if (isset($today_file)) {
         unset($today_file); // 重置己经备份的文件
@@ -78,3 +77,40 @@ foreach ($databases as $db_name) {
           echo $db_name. "\n";
         }
 
+// 删除过长时间的备份
+foreach ($databases as $db_name) {
+      foreach ($backup_frequency as $frequency) {
+          switch ($frequency) {
+              case 'daily':
+              $time_prex = 'daily';
+              $remain = $daily_remain;
+              break;
+              
+              case 'weekly':
+              $time_prex = 'weekly';
+              $remain = $weekly_remain;
+              break;
+              
+              case 'monthly':
+              $time_prex = 'monthly';
+              $remain = $monthly_remain;
+                break;
+              
+              default:
+                exit;
+                break;
+            }
+
+            $filepattern = $backup_dir . $host . '/' . $db_name . '/' . $time_prex . '/*' ;
+           $count = glob($filepattern);
+           for ($i=0; $i < $remain; $i++) { 
+            array_pop($count);
+           }
+           if (count($count) > 0) {
+            foreach ($count as $file_rm) {
+              unlink($file_rm);
+              echo 'removed: ' . $file_rm . "\n";
+             }
+           }
+      }
+    }

@@ -8,5 +8,7 @@ $host = 'localhost';
 $backup_dir= '/mnt/db/';           #备份文件压缩打包存放目录； 
 
 $backup_frequency = array('daily', 'weekly', 'monthly');
-
+$daily_remain = 2
+$weekly_remain = 2
+$monthly_remain = 2
 ?>
