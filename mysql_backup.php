@@ -1,4 +1,5 @@
 <?php
+
 /*
     备份的目录结构
 // BACKUP_DIR>/<host>/database/<daily|weekly|monthly>/<database>_YYYY-MM-DD.sql[.<COMPRESSION_EXTENSION>
@@ -7,10 +8,12 @@
     数据的保存份数策略
     同时为了保证数据量，会清一些比较久的数据
 //每月每周每天都会备份数据
-// 删除3天前的数据
+// 删除2天前的数据
 // 删除2周前的数据
-// 删除1月前的数据
+// 删除2月前的数据
 */
+set_time_limit(0);
+ini_set('memory_limit', '-1');
 require 'config.php';
 /*
  * 功能：循环检测并创建文件夹
@@ -23,6 +26,13 @@ function createDir($path){
     mkdir($path);
   }
 }
+
+function backup_init(){
+  // file_put_contents($log_file, '', FILE_APPEND);
+}
+
+backup_init();
+
 foreach ($databases as $db_name) {
       if (isset($today_file)) {
         unset($today_file); // 重置己经备份的文件
@@ -59,22 +69,27 @@ foreach ($databases as $db_name) {
             }
             // 这个数据库刚才是否备份过，如果备份过，则复制一份，然后退出循环
             if (isset($today_file)) {
-              echo $info = shell_exec("cp $today_file $filepath.gz");
+               $info = shell_exec("cp $today_file $filepath.gz");
+              file_put_contents($log_file,  date('Y-m-d H:i:s') . ':  file, ' . $filepath . 'was generated , and gziped' ."\n", FILE_APPEND);
               continue;
             }else{ // 否则备份
-              echo $info = shell_exec("mysqldump -h $host -u $user -p$password $db_name > $filepath");
+              $info = shell_exec("mysqldump -h $host -u $user -p$password $db_name > $filepath");
+              file_put_contents($log_file,  date('Y-m-d H:i:s') . ':  file, ' . $filepath . 'was generated ' ."\n", FILE_APPEND);
             }
             // 备份成功，则把备份压缩存储
             if ( file_exists($filepath)) {
-              echo $info = shell_exec("gzip $filepath");
+              $info = shell_exec("gzip $filepath");
+              file_put_contents($log_file,  date('Y-m-d H:i:s') . ':  file, ' . $filepath . 'was gziped ' ."\n", FILE_APPEND);
               //   备份好后，记录下己经dump过了，后面可以直接使用这个文件
               if (! isset($today_file) && file_exists($filepath . '.gz')) {
                         $today_file  = $filepath . '.gz';
               }
             }
-            echo $filepath. "\n";
+            // echo $filepath. "\n";
+            // file_put_contents($log_file,  date('Y-m-d H:i:s') . ':  file, ' $filepath . 'was generated ' ."\n", FILE_APPEND);
           }
-          echo $db_name. "\n";
+          // echo $db_name. "\n";
+          file_put_contents($log_file,  date('Y-m-d H:i:s') . ':  db, ' . $db_name . '  was scanned ' ."\n", FILE_APPEND);
         }
 
 // 删除过长时间的备份
@@ -109,7 +124,7 @@ foreach ($databases as $db_name) {
            if (count($count) > 0) {
             foreach ($count as $file_rm) {
               unlink($file_rm);
-              echo 'removed: ' . $file_rm . "\n";
+              file_put_contents($log_file,  date('Y-m-d H:i:s') . ':  file, '  .$file_rm . 'was removed ' ."\n", FILE_APPEND);
              }
            }
       }

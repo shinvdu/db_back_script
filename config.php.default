@@ -11,4 +11,6 @@ $backup_frequency = array('daily', 'weekly', 'monthly');
 $daily_remain = 2
 $weekly_remain = 2
 $monthly_remain = 2
+
+$log_file = '/var/log/mysql_backup.log';
 ?>
